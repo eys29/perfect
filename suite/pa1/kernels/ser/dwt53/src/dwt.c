@@ -99,12 +99,13 @@ THIS HEADER SHALL REMAIN PART OF ALL SOURCE CODE FILES.
 #include "xmem/xmalloc.h"
 #include "dwt53.h"
 
+#define MAGIC_INSTR __asm__ __volatile__("xchg %eax,%eax;");
 
 int
-dwt53 (algPixel_t *data, int nrows, int ncols)
+dwt53 (fltPixel_t *data, int nrows, int ncols)
 {
   int err = 0;
-  algPixel_t *data2 = (algPixel_t *)calloc(nrows * ncols, sizeof(algPixel_t));
+  fltPixel_t *data2 = (fltPixel_t *)calloc(nrows * ncols, sizeof(fltPixel_t));
   if (!data2)
   {
     fprintf(stderr, "File %s, Line %d, Memory Allocation Error", __FILE__, __LINE__);
@@ -128,9 +129,10 @@ dwt53 (algPixel_t *data, int nrows, int ncols)
 
 
 int
-dwt53_row_transpose (algPixel_t *data, algPixel_t *data2, int nrows, int ncols)
+dwt53_row_transpose (fltPixel_t *data, fltPixel_t *data2, int nrows, int ncols)
 {
   int i, j, cur;
+  float temp1, temp2, temp3, temp4;
 
   for (i = 0; i < nrows; i++)
   {
@@ -141,12 +143,22 @@ dwt53_row_transpose (algPixel_t *data, algPixel_t *data2, int nrows, int ncols)
 #ifdef USE_SHIFT
       data[cur] -= (data[cur - 1] + data[cur + 1]) >> 1;
 #else
-      data[cur] -= (algPixel_t)(0.5 * (data[cur - 1] + data[cur + 1]));
+      temp1 = data[cur - 1];
+      temp2 = data[cur + 1];
+      MAGIC_INSTR;
+      temp3 = temp1;
+      temp4 = temp2;
+      MAGIC_INSTR;
+      data[cur] -= (0.5 * (temp3 + temp4));
 #endif
     }
     /* The last odd pixel only has its left neighboring even pixel */
     cur = i * ncols + ncols - 1;
-    data[cur] -= data[cur - 1];
+    temp1 = data[cur - 1];
+    MAGIC_INSTR;
+    temp3 = temp1;
+    MAGIC_INSTR
+    data[cur] -= temp3;
 
     /* Update the even pixels using the odd pixels
      * to preserve the mean value of the pixels
@@ -157,7 +169,13 @@ dwt53_row_transpose (algPixel_t *data, algPixel_t *data2, int nrows, int ncols)
 #ifdef USE_SHIFT
       data[cur] += (data[cur - 1] + data[cur + 1]) >> 2;
 #else
-      data[cur] += (algPixel_t)(0.25 * (data[cur - 1] + data[cur + 1]));
+      temp1 = data[cur - 1];
+      temp2 = data[cur + 1];
+      MAGIC_INSTR;
+      temp3 = temp1;
+      temp4 = temp2;
+      MAGIC_INSTR;
+      data[cur] += (0.25 * (temp3 + temp4));
 #endif
     }
     /* The first even pixel only has its right neighboring odd pixel */
@@ -165,7 +183,11 @@ dwt53_row_transpose (algPixel_t *data, algPixel_t *data2, int nrows, int ncols)
 #ifdef USE_SHIFT
     data[cur] += data[cur + 1] >> 1;
 #else
-    data[cur] += (algPixel_t)(0.5 * data[cur + 1]);      
+    temp1 = data[cur + 1];
+    MAGIC_INSTR;
+    temp3 = temp1;
+    MAGIC_INSTR;
+    data[cur] += (0.5 * temp3);      
 #endif
 
     /* Now rearrange the data putting the low
@@ -176,8 +198,14 @@ dwt53_row_transpose (algPixel_t *data, algPixel_t *data2, int nrows, int ncols)
 
     for (j = 0; j < ncols / 2; j++)
     {
-      data2[j * nrows + i] = data[i * ncols + 2 * j];
-      data2[(j + ncols / 2)* nrows + i] = data[i * ncols + 2 * j + 1];
+      temp1 = data[i * ncols + 2 * j];
+      temp2 = data[i * ncols + 2 * j + 1];
+      MAGIC_INSTR;
+      temp3 = temp1;
+      temp4 = temp2;
+      MAGIC_INSTR;
+      data2[j * nrows + i] = temp3;
+      data2[(j + ncols / 2)* nrows + i] = temp4;
     }
   }
 

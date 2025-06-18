@@ -73,7 +73,7 @@
 INPUT_SIZE ?= MEDIUM
 
 CC ?= gcc
-CFLAGS ?= -std=gnu9x -Wall -g -O3
+CFLAGS ?= -std=gnu9x -Wall -g -O0
 #CFLAGS ?= -std=c90 -pedantic -ansi -Wall -g -O3
 
 #****************************************************************************

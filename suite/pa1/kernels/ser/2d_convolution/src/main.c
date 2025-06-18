@@ -98,25 +98,25 @@
 #include "2d_convolution.h"
 
 #if !defined(BATCH_SIZE)
-#define BATCH_SIZE (30)
+#define BATCH_SIZE (1)
 #endif
 
 #if INPUT_SIZE == INPUT_SIZE_SMALL
 #define M 640  /* columns */
 #define N 480  /* rows */
-#define FILENAME "../../../input/input_small.mat"
+#define FILENAME "../../../../../../perfect/suite/pa1/input/input_small.mat"
 #define SIZE "small"
 
 #elif INPUT_SIZE == INPUT_SIZE_MEDIUM
 #define M 1920  /* columns */
 #define N 1080  /* rows */
-#define FILENAME "../../../input/input_medium.mat"
+#define FILENAME "../../../../../../perfect/suite/pa1/input/input_medium.mat"
 #define SIZE "medium"
 
 #elif INPUT_SIZE == INPUT_SIZE_LARGE
 #define M 3840  /* columns */
 #define N 2160  /* rows */
-#define FILENAME "../../../input/input_large.mat"
+#define FILENAME "../../../../../../perfect/suite/pa1/input/input_large.mat"
 #define SIZE "large"
 
 #else
@@ -130,6 +130,9 @@ int main (int argc, char * argv[])
   int * frame;
   int * output;
   int i;
+
+  float * frame_float;
+  float * output_float;
 
   int nFilterRowsFD = 9; 
   int nFilterColsFD = 9;
@@ -162,6 +165,9 @@ int main (int argc, char * argv[])
   frame = calloc (M * N * BATCH_SIZE, sizeof(algPixel_t));
   output = calloc (M * N * BATCH_SIZE, sizeof(algPixel_t));
 
+  frame_float = calloc (M * N * BATCH_SIZE, sizeof(fltPixel_t));
+  output_float = calloc (M * N * BATCH_SIZE, sizeof(fltPixel_t));
+
   if (!frame || !output) {
     fprintf(stderr, "ERROR: Allocation failed.\n");
     exit(-1);
@@ -170,6 +176,11 @@ int main (int argc, char * argv[])
   /* load image */
   tic ();
   read_array_from_octave (frame, N, M, FILENAME);
+  srand(1);
+  for (i = 0; i < M * N; i++){
+    frame_float[i] = (float)frame[i] + ((float)rand() / (float)RAND_MAX);
+    printf("%f ", frame_float[i]);
+  }
   PRINT_STAT_DOUBLE ("time_load_image", toc ());
 
   /* Make BATCH_SIZE-1 copies */
@@ -182,14 +193,27 @@ int main (int argc, char * argv[])
   /* Perform the 2D convolution */
   tic ();
   for (i = 0; i < BATCH_SIZE; i++) {
-    conv2d (&frame[i * M * N], &output[i * M * N], N, M, FD, 1.0, nFilterRowsFD, nFilterColsFD);
+    conv2d (&frame_float[i * M * N], &output_float[i * M * N], N, M, FD, 1.0, nFilterRowsFD, nFilterColsFD);
   }
   PRINT_STAT_DOUBLE ("time_2d_convolution", toc ());
 
+  for (i = 0; i < M * N; i++){
+    output[i] = (algPixel_t)output_float[i];
+  }
+
   /* Write the results out to disk */
   for (i = 0; i < BATCH_SIZE; i++) {
-    char buffer [30];
-    sprintf (buffer, "2dconv_output." SIZE ".%d.mat", i);
+    char buffer [40];
+
+    if(argc == 3) {
+      int instr = atoi(argv[1]);
+      int bit = atoi(argv[2]);
+      
+      sprintf (buffer, "2dconv_output." SIZE ".%d.mat.%d.%d", i, instr, bit);
+    } else {
+      sprintf (buffer, "2dconv_output." SIZE ".%d.mat", i);  
+
+    }
     write_array_to_octave (&output[i * M * N], N, M, buffer, "output");
   }
   PRINT_STAT_STRING ("output_file", "2dconv_output." SIZE ".#.mat");

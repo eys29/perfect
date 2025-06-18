@@ -98,6 +98,6 @@ typedef float fltPixel_t;
 typedef int algPixel_t;
 
 int
-conv2d (algPixel_t *in, algPixel_t *out, int nRows, int nCols, fltPixel_t *filter, float normFactor, int nFilterRows, int nFilterCols);
+conv2d (fltPixel_t *in, fltPixel_t *out, int nRows, int nCols, fltPixel_t *filter, float normFactor, int nFilterRows, int nFilterCols);
 
 #endif /* _TAV_2D_CONVOLUTION_ */

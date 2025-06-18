@@ -103,8 +103,10 @@ THIS HEADER SHALL REMAIN PART OF ALL SOURCE CODE FILES.
 
 #define MIN(A,B)	((A) < (B) ? (A) : (B))
 
+#define MAGIC_INSTR __asm__ __volatile__("xchg %eax,%eax;");
+
 int
-hist (algPixel_t *streamA, int *h, int nRows, int nCols, int nBpp)
+hist (fltPixel_t *streamA, int *h, int nRows, int nCols, int nBpp)
 {
   int nBins = 1 << nBpp;
   int nPxls = nRows * nCols;
@@ -120,14 +122,18 @@ hist (algPixel_t *streamA, int *h, int nRows, int nCols, int nBpp)
 
   for (i = 0; i < nPxls; i++)
   {
-    if (streamA[i] >= nBins)
+    fltPixel_t temp1 = streamA[i];
+    MAGIC_INSTR;
+    fltPixel_t temp2 = temp1;
+    MAGIC_INSTR
+    if (temp2 >= nBins)
     {
       fprintf(stderr, "File %s, Line %d, Range Error in hist() -- using max val ---", __FILE__, __LINE__);
       h[nBins-1]++;
     }
     else
     {
-      h[(int)streamA[i]]++;
+      h[(int)temp2]++;
     }
   }
 
@@ -136,7 +142,7 @@ hist (algPixel_t *streamA, int *h, int nRows, int nCols, int nBpp)
 
 
 int
-histEq (algPixel_t *streamA, algPixel_t *out, int *h, int nRows, int nCols, int nInpBpp, int nOutBpp)
+histEq (fltPixel_t *streamA, fltPixel_t *out, int *h, int nRows, int nCols, int nInpBpp, int nOutBpp)
 {
   int nOutBins = (1 << nOutBpp);
   int nInpBins = (1 << nInpBpp);
@@ -174,7 +180,11 @@ histEq (algPixel_t *streamA, algPixel_t *out, int *h, int nRows, int nCols, int 
 
   for (i = 0; i < nPxls; i++)
   {
-    out[i] = LUT[(int)streamA[i]];
+    fltPixel_t temp1 = streamA[i];
+    MAGIC_INSTR;
+    fltPixel_t temp2 = temp1;
+    MAGIC_INSTR
+    out[i] = LUT[(int)temp2];
   }
 
   free(CDF);

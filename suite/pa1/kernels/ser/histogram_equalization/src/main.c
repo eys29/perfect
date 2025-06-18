@@ -98,25 +98,25 @@
 #include "histeq.h"
 
 #if !defined(BATCH_SIZE)
-#define BATCH_SIZE (30)
+#define BATCH_SIZE (1)
 #endif
 
 #if INPUT_SIZE == INPUT_SIZE_SMALL
 #define M 640  /* columns */
 #define N 480  /* rows */
-#define FILENAME "../../../input/input_small.mat"
+#define FILENAME "../../../../../../perfect/suite/pa1/input/input_small.mat"
 #define SIZE "small"
 
 #elif INPUT_SIZE == INPUT_SIZE_MEDIUM
 #define M 1920  /* columns */
 #define N 1080  /* rows */
-#define FILENAME "../../../input/input_medium.mat"
+#define FILENAME "../../../../../../perfect/suite/pa1/input/input_medium.mat"
 #define SIZE "medium"
 
 #elif INPUT_SIZE == INPUT_SIZE_LARGE
 #define M 3840  /* columns */
 #define N 2160  /* rows */
-#define FILENAME "../../../input/input_large.mat"
+#define FILENAME "../../../../../../perfect/suite/pa1/input/input_large.mat"
 #define SIZE "large"
 
 #else
@@ -133,6 +133,9 @@ int main (int argc, char * argv[])
   int nBins = (1 << 16);
   int i;
 
+  float * frame_float;
+  float * output_float;
+
   srand (time (NULL));
 
   STATS_INIT ();
@@ -145,6 +148,9 @@ int main (int argc, char * argv[])
   output = calloc (M * N * BATCH_SIZE, sizeof(algPixel_t));
   histogram = calloc (nBins * BATCH_SIZE, sizeof(int));
 
+  frame_float = calloc (M * N * BATCH_SIZE, sizeof(fltPixel_t));
+  output_float = calloc (M * N * BATCH_SIZE, sizeof(fltPixel_t));
+
   if (!frame || !output || !histogram) {
     fprintf(stderr, "ERROR: Allocation failed.\n");
     exit(-1);
@@ -153,6 +159,11 @@ int main (int argc, char * argv[])
   /* load image */
   tic ();
   read_array_from_octave (frame, N, M, FILENAME);
+  srand(1);
+  for (i = 0; i < M * N; i++){
+    frame_float[i] = (float)frame[i] + ((float)rand() / (float)RAND_MAX);
+    printf("%f ", frame_float[i]);
+  }
   PRINT_STAT_DOUBLE ("time_load_image", toc ());
 
   /* Make BATCH_SIZE-1 copies */
@@ -165,15 +176,26 @@ int main (int argc, char * argv[])
   /* Perform the histogram equalization */
   tic ();
   for (i = 0; i < BATCH_SIZE; i++) {
-    hist (&frame[i * M * N], &histogram[i * nBins], N, M, 16);
-    histEq (&frame[i * M * N], &output[i * M * N], &histogram[i * nBins], N, M, 16, 16);	
+    hist (&frame_float[i * M * N], &histogram[i * nBins], N, M, 16);
+    histEq (&frame_float[i * M * N], &output_float[i * M * N], &histogram[i * nBins], N, M, 16, 16);	
   }
   PRINT_STAT_DOUBLE ("time_histogram_equalization", toc ());
- 
+  
+  for (i = 0; i < M * N; i++){
+    output[i] = (algPixel_t)output_float[i];
+  }
+
   /* Write the results out to disk */
   for (i = 0; i < BATCH_SIZE; i++) {
-    char buffer [30];
-    sprintf (buffer, "histeq_output." SIZE ".%d.mat", i);
+    char buffer [40];
+    if(argc == 3) {
+      int instr = atoi(argv[1]);
+      int bit = atoi(argv[2]);
+      
+      sprintf (buffer, "histeq_output." SIZE ".%d.mat.%d.%d", i, instr, bit);
+    } else {
+      sprintf (buffer, "histeq_output." SIZE ".%d.mat", i);
+    }
     write_array_to_octave (&output[i * M * N], N, M, buffer, "output");
   }
   PRINT_STAT_STRING ("output_file", "histeq_output." SIZE ".#.mat");

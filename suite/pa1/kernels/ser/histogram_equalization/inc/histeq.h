@@ -98,9 +98,9 @@ typedef float fltPixel_t;
 typedef int algPixel_t;
 
 int
-histEq (algPixel_t *streamA, algPixel_t *out, int *h, int nRows, int nCols, int nInpBpp, int nOutBpp);
+histEq (fltPixel_t *streamA, fltPixel_t *out, int *h, int nRows, int nCols, int nInpBpp, int nOutBpp);
 
 int
-hist (algPixel_t *streamA, int *h, int nRows, int nCols, int nBpp);
+hist (fltPixel_t *streamA, int *h, int nRows, int nCols, int nBpp);
 
 #endif /* _TAV_HISTEQ_ */

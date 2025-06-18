@@ -98,9 +98,9 @@ typedef float fltPixel_t;
 typedef int algPixel_t;
 
 int
-dwt53 (algPixel_t *data, int nrows, int ncols);
+dwt53 (fltPixel_t *data, int nrows, int ncols);
 
 int
-dwt53_row_transpose (algPixel_t *data, algPixel_t *data2, int nrows, int ncols);
+dwt53_row_transpose (fltPixel_t *data, fltPixel_t *data2, int nrows, int ncols);
 
 #endif /* _TAV_DWT53_ */

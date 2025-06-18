@@ -22,27 +22,27 @@
  *    publish, distribute, sublicense, and/or sell copies of the
  *    Software, and may permit others to do so, subject to the following
  *    conditions:
- * 
+ *
  *    * Redistributions of source code must retain the above copyright
  *      notice, this list of conditions and the following disclaimers.
- * 
+ *
  *    * Redistributions in binary form must reproduce the above copyright
  *      notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the
  *      distribution.
- * 
+ *
  *    * Other than as used herein, neither the name Battelle Memorial
  *      Institute nor Battelle may be used in any form whatsoever without
  *      the express written consent of Battelle.
- * 
+ *
  *      Other than as used herein, neither the name Georgia Tech Research
  *      Corporation nor GTRC may not be used in any form whatsoever
  *      without the express written consent of GTRC.
- * 
+ *
  *    * Redistributions of the software in any form, and publications
  *      based on work performed using the software should include the
  *      following citation as a reference:
- * 
+ *
  *      Kevin Barker, Thomas Benson, Dan Campbell, David Ediger, Roberto
  *      Gioiosa, Adolfy Hoisie, Darren Kerbyson, Joseph Manzano, Andres
  *      Marquez, Leon Song, Nathan R. Tallent, and Antonino Tumeo.
@@ -75,17 +75,17 @@
   ALL SOURCE CODE PRESENT IN THIS FILE IS UNCLASSIFIED AND IS
   BEING PROVIDED IN SUPPORT OF THE DARPA PERFECT PROGRAM.
 
-  THIS CODE IS PROVIDED AS-IS WITH NO WARRANTY, EXPRESSED, IMPLIED, 
+  THIS CODE IS PROVIDED AS-IS WITH NO WARRANTY, EXPRESSED, IMPLIED,
   OR OTHERWISE INFERRED. USE AND SUITABILITY FOR ANY PARTICULAR
-  APPLICATION IS SOLELY THE RESPONSIBILITY OF THE IMPLEMENTER. 
+  APPLICATION IS SOLELY THE RESPONSIBILITY OF THE IMPLEMENTER.
   NO CLAIM OF SUITABILITY FOR ANY APPLICATION IS MADE.
   USE OF THIS CODE FOR ANY APPLICATION RELEASES THE AUTHOR
   AND THE US GOVT OF ANY AND ALL LIABILITY.
 
   THE POINT OF CONTACT FOR QUESTIONS REGARDING THIS SOFTWARE IS:
 
-  US ARMY RDECOM CERDEC NVESD, RDER-NVS-SI (JOHN HODAPP, 
-  john.hodapp@us.army.mil), 10221 BURBECK RD, FORT BELVOIR, 
+  US ARMY RDECOM CERDEC NVESD, RDER-NVS-SI (JOHN HODAPP,
+  john.hodapp@us.army.mil), 10221 BURBECK RD, FORT BELVOIR,
   VA 22060-5806
 
   THIS HEADER SHALL REMAIN PART OF ALL SOURCE CODE FILES.
@@ -99,8 +99,9 @@
 #include "xmem/xmalloc.h"
 #include "2d_convolution.h"
 
-int
-conv2d (algPixel_t *in, algPixel_t *out, int nRows, int nCols, fltPixel_t *filter, float normFactor, int nFilterRows, int nFilterCols)
+#define MAGIC_INSTR __asm__ __volatile__("xchg %eax,%eax;");
+
+int conv2d(fltPixel_t *in, fltPixel_t *out, int nRows, int nCols, fltPixel_t *filter, float normFactor, int nFilterRows, int nFilterCols)
 {
   float sum = 0.0;
   int m = 0, n = 0;
@@ -113,7 +114,7 @@ conv2d (algPixel_t *in, algPixel_t *out, int nRows, int nCols, fltPixel_t *filte
   int pxlPos = 0;
   int fltPos = 0;
 
-  algPixel_t *tmpBuf = (algPixel_t *)calloc((nRows + nFilterRows) * (nCols + nFilterCols), sizeof(algPixel_t));
+  fltPixel_t *tmpBuf = (fltPixel_t *)calloc((nRows + nFilterRows) * (nCols + nFilterCols), sizeof(fltPixel_t));
   if (!tmpBuf)
   {
     fprintf(stderr, "File %s, Line %d, Memory Allocation Error\n", __FILE__, __LINE__);
@@ -123,11 +124,12 @@ conv2d (algPixel_t *in, algPixel_t *out, int nRows, int nCols, fltPixel_t *filte
   for (row = 0; row < nRows; row++)
   {
     {
-      memcpy((void *)(tmpBuf + (row + rowOffset) * (nCols + nFilterCols) + colOffset), 
-	  (void *)(in + row * nCols), 
-	  nCols * sizeof(algPixel_t));
+      memcpy((void *)(tmpBuf + (row + rowOffset) * (nCols + nFilterCols) + colOffset),
+             (void *)(in + row * nCols),
+             nCols * sizeof(fltPixel_t));
     }
   }
+
 
   for (row = rowBegIndex; row < nRows + rowOffset; row++)
   {
@@ -137,17 +139,24 @@ conv2d (algPixel_t *in, algPixel_t *out, int nRows, int nCols, fltPixel_t *filte
       m = 0;
       for (i = row - rowOffset; i <= row + rowOffset; i++)
       {
-	n = 0;
-	for (j = col - colOffset; j <= col + colOffset; j++)
-	{
-	  pxlPos = i * (nCols + nFilterCols) + j;
-	  fltPos = m * nFilterCols + n;
-	  sum += ((fltPixel_t) tmpBuf[pxlPos] * filter[fltPos]);
-	  n++;
-	}
-	m++;
+        n = 0;
+        for (j = col - colOffset; j <= col + colOffset; j++)
+        {
+          pxlPos = i * (nCols + nFilterCols) + j;
+          fltPos = m * nFilterCols + n;
+          fltPixel_t temp1 = (fltPixel_t)tmpBuf[pxlPos];
+          
+          MAGIC_INSTR;
+          fltPixel_t temp2 = temp1;
+          MAGIC_INSTR;
+          sum += (temp2 * filter[fltPos]);
+          
+
+          n++;
+        }
+        m++;
       }
-      out[(row - rowBegIndex) * nCols + (col - colBegIndex)] = (algPixel_t) (sum / normFactor);
+      out[(row - rowBegIndex) * nCols + (col - colBegIndex)] = (sum / normFactor);
     }
   }
 
