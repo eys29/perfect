@@ -79,8 +79,8 @@
 #if INPUT_SIZE == INPUT_SIZE_SMALL
 #define M 512  /* columns */
 #define N 512  /* rows */
-#define GRADX "../../../inout/small_dx.mat"
-#define GRADY "../../../inout/small_dy.mat"
+#define GRADX "../../perfect/suite/wami/inout/small_dx.mat"
+#define GRADY "../../perfect/suite/wami/inout/small_dy.mat"
 
 #elif INPUT_SIZE == INPUT_SIZE_MEDIUM
 #define M 1024  /* columns */
@@ -175,7 +175,15 @@ int main (int argc, char * argv[])
   tic ();
   hessian (I_steepest, M, N, 6, H);
   PRINT_STAT_DOUBLE ("time_hessian", toc ());
-  write_fltarray_to_octave (H, 6, 6, "output.mat", "output");
+  if(argc == 3) {
+    int instr = atoi(argv[1]);
+    int bit = atoi(argv[2]);
+    char buffer [40];
+    sprintf (buffer, "output.mat.%d.%d",instr, bit);
+    write_fltarray_to_octave (H, 6, 6, buffer, "output");
+  } else {
+    write_fltarray_to_octave (H, 6, 6, "output.mat", "output");
+  }
 
   STATS_END ();
 

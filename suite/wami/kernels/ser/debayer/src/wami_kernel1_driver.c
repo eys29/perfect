@@ -93,8 +93,7 @@
     #error "Unhandled value for INPUT_SIZE"
 #endif
 
-#define ENABLE_CORRECTNESS_CHECKING
-#define WRITE_OUTPUT_TO_DISK
+
 
 static const char *output_directory = ".";
 
@@ -112,13 +111,9 @@ int main(int argc, char **argv)
     const size_t num_debayer_pixels = (WAMI_DEBAYER_IMG_NUM_ROWS-2*PAD) *
         (WAMI_DEBAYER_IMG_NUM_COLS-2*PAD);
 
-    if (argc != 2)
-    {
-        fprintf(stderr, "%s <directory-containing-input-files>\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
+  
 
-    input_directory = argv[1];
+    input_directory = "../../perfect/suite/wami/inout/";
 
     bayer = XMALLOC(sizeof(u16) * num_bayer_pixels);
     debayer = XMALLOC(sizeof(rgb_pixel) * num_debayer_pixels);
@@ -146,6 +141,37 @@ int main(int argc, char **argv)
         debayer,
         bayer);
     PRINT_STAT_DOUBLE("CPU time using func toc - ", toc());
+
+    char buffer [40];
+
+    if(argc == 3) {
+      int instr = atoi(argv[1]);
+      int bit = atoi(argv[2]);
+      
+      sprintf (buffer, "output.mat.%d.%d", instr, bit);
+    } else {
+      sprintf (buffer, "output.mat");  
+
+    }
+    FILE *fp = fopen(buffer, "w");
+    int i, j;
+    int ncols = WAMI_DEBAYER_IMG_NUM_COLS-2*PAD;
+    int nrows = WAMI_DEBAYER_IMG_NUM_ROWS-2*PAD;
+
+    fprintf(fp, "%% Created by PERFECT 2D Convolution Benchmark\n");
+    fprintf(fp, "%% name: %s\n", "output");
+    fprintf(fp, "%% type: matrix\n");
+    fprintf(fp, "%% rows: %d\n", ncols);
+    fprintf(fp, "%% columns: %d\n", nrows);
+
+    for (i = 0; i < nrows; i++) {
+        for (j = 0; j < ncols; j++) {
+            fprintf(fp, " %d %d %d", debayer[i][j].r,  debayer[i][j].g,  debayer[i][j].b);
+        }
+        fprintf(fp, "\n");
+    }
+
+    fclose(fp);
 
 #ifdef ENABLE_CORRECTNESS_CHECKING
     read_image_file(

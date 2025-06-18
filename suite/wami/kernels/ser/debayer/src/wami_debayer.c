@@ -68,6 +68,9 @@
 
 #include "wami_debayer.h"
 
+#define MAGIC_INSTR __asm__ __volatile__("xchg %eax,%eax;");
+
+
 #define PIXEL_MAX 65535
 
 static u16 compute_and_clamp_pixel(
@@ -280,6 +283,7 @@ void wami_debayer(
         }
     }
 
+    MAGIC_INSTR;
     /* Interpolate green pixels at red pixels */
     for (row = PAD; row < WAMI_DEBAYER_IMG_NUM_ROWS-PAD; row += 2)
     {
@@ -359,4 +363,5 @@ void wami_debayer(
                 bayer, row, col);
         }
     }
+    MAGIC_INSTR;    
 }

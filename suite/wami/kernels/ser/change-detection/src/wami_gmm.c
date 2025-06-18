@@ -81,6 +81,9 @@ static const float INIT_WEIGHT = 0.01f;
 static const float BACKGROUND_THRESH = 0.9f;
 #define ONE_OVER_SQRT_TWO_PI (1.0f / sqrt(2.0f * M_PI))
 
+#define MAGIC_INSTR __asm__ __volatile__("xchg %ecx,%ecx;");
+
+
 void wami_gmm(
     u8 foreground[WAMI_GMM_IMG_NUM_ROWS][WAMI_GMM_IMG_NUM_COLS],
     float mu[WAMI_GMM_IMG_NUM_ROWS][WAMI_GMM_IMG_NUM_COLS][WAMI_GMM_NUM_MODELS],
@@ -93,6 +96,7 @@ void wami_gmm(
     
     memset(foreground, 0, sizeof(u8) * num_pixels);
 
+    MAGIC_INSTR;
     for (row = 0; row < WAMI_GMM_IMG_NUM_ROWS; ++row)
     {
         for (col = 0; col < WAMI_GMM_IMG_NUM_COLS; ++col)
@@ -245,4 +249,5 @@ void wami_gmm(
             }
         }
     }
+    MAGIC_INSTR;
 }

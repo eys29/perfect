@@ -72,6 +72,7 @@
 
 #include "wami_lucas_kanade.h"
 
+#define MAGIC_INSTR __asm__ __volatile__("xchg %eax,%eax;");
 
 void
 warp_image (fltPixel_t *Iin, int nCols, int nRows, float *W_xp, fltPixel_t *Iout)
@@ -83,6 +84,8 @@ warp_image (fltPixel_t *Iin, int nCols, int nRows, float *W_xp, fltPixel_t *Iout
 
   compb0 = W_xp[2];
   compb1 = W_xp[5];
+
+  MAGIC_INSTR;
 
   for (y = 1; y <= nRows; y++) {
     compa0 = W_xp[1] * ((float) y) + compb0;
@@ -96,6 +99,8 @@ warp_image (fltPixel_t *Iin, int nCols, int nRows, float *W_xp, fltPixel_t *Iout
       index++;
     }
   }
+  MAGIC_INSTR;
+
 
 }
 
@@ -106,6 +111,8 @@ steepest_descent (fltPixel_t *gradX_warped, fltPixel_t *gradY_warped, int nCols,
   int x, y;
   float Jacobian_x[6], Jacobian_y[6];
   int index, j_index;
+
+  MAGIC_INSTR;
 
   for (y = 0; y < nRows; y++) {
     for (x = 0; x < nCols; x++) {
@@ -131,6 +138,8 @@ steepest_descent (fltPixel_t *gradX_warped, fltPixel_t *gradY_warped, int nCols,
       }
     }
   }
+  MAGIC_INSTR;
+
 }
 
 void
@@ -138,6 +147,8 @@ hessian (fltPixel_t *I_steepest, int nCols, int nRows, int np, float *H)
 {
   int i, j;
   int x, y;
+
+  MAGIC_INSTR;
 
   for (y = 0; y < nRows; y++) {
     for (i = 0; i < np; i++) {
@@ -152,6 +163,9 @@ hessian (fltPixel_t *I_steepest, int nCols, int nRows, int np, float *H)
       }
     }
   }
+
+  MAGIC_INSTR;
+
 
 }
 

@@ -94,9 +94,6 @@
     #error "Unhandled value for INPUT_SIZE"
 #endif
 
-#define ENABLE_CORRECTNESS_CHECKING
-#define WRITE_OUTPUT_TO_DISK
-
 static void read_gmm_input_data(
     float mu[WAMI_GMM_IMG_NUM_ROWS][WAMI_GMM_IMG_NUM_COLS][WAMI_GMM_NUM_MODELS],
     float sigma[WAMI_GMM_IMG_NUM_ROWS][WAMI_GMM_IMG_NUM_COLS][WAMI_GMM_NUM_MODELS],
@@ -124,13 +121,9 @@ int main(int argc, char **argv)
 
     const size_t num_pixels = WAMI_GMM_IMG_NUM_ROWS * WAMI_GMM_IMG_NUM_COLS;
 
-    if (argc != 2)
-    {
-        fprintf(stderr, "%s <directory-containing-input-files>\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
+    
 
-    input_directory = argv[1];
+    input_directory = "../../../inout";
 
     mu = XMALLOC(sizeof(float) * num_pixels * WAMI_GMM_NUM_MODELS);
     sigma = XMALLOC(sizeof(float) * num_pixels * WAMI_GMM_NUM_MODELS);
@@ -180,6 +173,7 @@ int main(int argc, char **argv)
     }
     PRINT_STAT_DOUBLE("CPU time using func toc - ", toc());
     printf ("\n");
+    
 #ifdef ENABLE_CORRECTNESS_CHECKING
     {
         int j, k, validation_warning = 0;
