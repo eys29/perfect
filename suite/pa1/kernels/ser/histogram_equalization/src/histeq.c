@@ -103,6 +103,7 @@ THIS HEADER SHALL REMAIN PART OF ALL SOURCE CODE FILES.
 
 #define MIN(A,B)	((A) < (B) ? (A) : (B))
 
+#define MAGIC_INSTR __asm__ __volatile__("xchg %eax,%eax;");
 int
 hist (algPixel_t *streamA, int *h, int nRows, int nCols, int nBpp)
 {
@@ -156,6 +157,8 @@ histEq (algPixel_t *streamA, algPixel_t *out, int *h, int nRows, int nCols, int 
     return -1;
   }
 
+  MAGIC_INSTR;
+
   for (i = 0; i < nInpBins; i++)
   {
     sum += (double) h[i];
@@ -177,6 +180,8 @@ histEq (algPixel_t *streamA, algPixel_t *out, int *h, int nRows, int nCols, int 
     out[i] = LUT[(int)streamA[i]];
   }
 
+  MAGIC_INSTR;
+  
   free(CDF);
   free(LUT);
 

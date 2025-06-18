@@ -98,25 +98,25 @@
 #include "histeq.h"
 
 #if !defined(BATCH_SIZE)
-#define BATCH_SIZE (30)
+#define BATCH_SIZE (1)
 #endif
 
 #if INPUT_SIZE == INPUT_SIZE_SMALL
 #define M 640  /* columns */
 #define N 480  /* rows */
-#define FILENAME "../../../input/input_small.mat"
+#define FILENAME "../../../../../../perfect/suite/pa1/input/input_small.mat"
 #define SIZE "small"
 
 #elif INPUT_SIZE == INPUT_SIZE_MEDIUM
 #define M 1920  /* columns */
 #define N 1080  /* rows */
-#define FILENAME "../../../input/input_medium.mat"
+#define FILENAME "../../../../../../perfect/suite/pa1/input/input_medium.mat"
 #define SIZE "medium"
 
 #elif INPUT_SIZE == INPUT_SIZE_LARGE
 #define M 3840  /* columns */
 #define N 2160  /* rows */
-#define FILENAME "../../../input/input_large.mat"
+#define FILENAME "../../../../../../perfect/suite/pa1/input/input_large.mat"
 #define SIZE "large"
 
 #else
@@ -172,8 +172,15 @@ int main (int argc, char * argv[])
  
   /* Write the results out to disk */
   for (i = 0; i < BATCH_SIZE; i++) {
-    char buffer [30];
-    sprintf (buffer, "histeq_output." SIZE ".%d.mat", i);
+    char buffer [40];
+    if(argc == 3) {
+      int instr = atoi(argv[1]);
+      int bit = atoi(argv[2]);
+      
+      sprintf (buffer, "histeq_output." SIZE ".%d.mat.%d.%d", i, instr, bit);
+    } else {
+      sprintf (buffer, "histeq_output." SIZE ".%d.mat", i);
+    }
     write_array_to_octave (&output[i * M * N], N, M, buffer, "output");
   }
   PRINT_STAT_STRING ("output_file", "histeq_output." SIZE ".#.mat");
