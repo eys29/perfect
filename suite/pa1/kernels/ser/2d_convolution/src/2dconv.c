@@ -99,6 +99,8 @@
 #include "xmem/xmalloc.h"
 #include "2d_convolution.h"
 
+#define MAGIC_INSTR __asm__ __volatile__("xchg %eax,%eax;");
+
 int
 conv2d (algPixel_t *in, algPixel_t *out, int nRows, int nCols, fltPixel_t *filter, float normFactor, int nFilterRows, int nFilterCols)
 {
@@ -129,6 +131,7 @@ conv2d (algPixel_t *in, algPixel_t *out, int nRows, int nCols, fltPixel_t *filte
     }
   }
 
+  MAGIC_INSTR;
   for (row = rowBegIndex; row < nRows + rowOffset; row++)
   {
     for (col = colBegIndex; col < nCols + colOffset; col++)
@@ -150,6 +153,7 @@ conv2d (algPixel_t *in, algPixel_t *out, int nRows, int nCols, fltPixel_t *filte
       out[(row - rowBegIndex) * nCols + (col - colBegIndex)] = (algPixel_t) (sum / normFactor);
     }
   }
+  MAGIC_INSTR;
 
   free((void *)tmpBuf);
 
