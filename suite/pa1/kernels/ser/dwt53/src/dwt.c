@@ -99,6 +99,7 @@ THIS HEADER SHALL REMAIN PART OF ALL SOURCE CODE FILES.
 #include "xmem/xmalloc.h"
 #include "dwt53.h"
 
+#define MAGIC_INSTR __asm__ __volatile__("xchg %eax,%eax;");
 
 int
 dwt53 (algPixel_t *data, int nrows, int ncols)
@@ -131,6 +132,8 @@ int
 dwt53_row_transpose (algPixel_t *data, algPixel_t *data2, int nrows, int ncols)
 {
   int i, j, cur;
+
+  MAGIC_INSTR;
 
   for (i = 0; i < nrows; i++)
   {
@@ -180,6 +183,8 @@ dwt53_row_transpose (algPixel_t *data, algPixel_t *data2, int nrows, int ncols)
       data2[(j + ncols / 2)* nrows + i] = data[i * ncols + 2 * j + 1];
     }
   }
+
+  MAGIC_INSTR;
 
   return 0;
 }
