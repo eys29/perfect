@@ -119,6 +119,7 @@ hist (algPixel_t *streamA, int *h, int nRows, int nCols, int nBpp)
 
   memset((void *)h, 0, nBins * sizeof(int));
 
+  MAGIC_INSTR;
   for (i = 0; i < nPxls; i++)
   {
     if (streamA[i] >= nBins)
@@ -131,6 +132,7 @@ hist (algPixel_t *streamA, int *h, int nRows, int nCols, int nBpp)
       h[(int)streamA[i]]++;
     }
   }
+  MAGIC_INSTR;
 
   return 0;
 }
