@@ -1,4 +1,9 @@
 *~
 .DS_Store
-
-
+*.o
+*.a
+*2d_convolution
+*dwt53
+*histogram_equalization
+*wami-debayer
+*wami-lucas-kanade
