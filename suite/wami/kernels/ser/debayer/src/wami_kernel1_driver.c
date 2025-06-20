@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 
   
 
-    input_directory = "../../perfect/suite/wami/inout/";
+    input_directory = "../../../../../../perfect/suite/wami/inout";
 
     bayer = XMALLOC(sizeof(u16) * num_bayer_pixels);
     debayer = XMALLOC(sizeof(rgb_pixel) * num_debayer_pixels);
