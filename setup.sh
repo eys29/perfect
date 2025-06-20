@@ -13,5 +13,5 @@ declare -a dirs=(
 for dir in "${dirs[@]}"; do
   echo "Building in $dir..."
   make -C "$dir" clean
-  make -C "$dir" INPUT_SIZE=SMALL
+  make -C "$dir" INPUT_SIZE=SMALL HOST_ARCH=intel64
 done
