@@ -12,5 +12,6 @@ declare -a dirs=(
 
 for dir in "${dirs[@]}"; do
   echo "Building in $dir..."
+  make -C "$dir" clean
   make -C "$dir" INPUT_SIZE=SMALL
 done

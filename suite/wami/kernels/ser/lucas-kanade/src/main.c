@@ -79,20 +79,20 @@
 #if INPUT_SIZE == INPUT_SIZE_SMALL
 #define M 512  /* columns */
 #define N 512  /* rows */
-#define GRADX "../../../../../../perfect/suite/wami/inout/small_dx.mat"
-#define GRADY "../../../../../../perfect/suite/wami/inout/small_dy.mat"
+#define GRADX "../../../../perfect/suite/wami/inout/small_dx.mat"
+#define GRADY "../../../../perfect/suite/wami/inout/small_dy.mat"
 
 #elif INPUT_SIZE == INPUT_SIZE_MEDIUM
 #define M 1024  /* columns */
 #define N 1024  /* rows */
-#define GRADX "../../../../../../perfect/suite/wami/inout/medium_dx.mat"
-#define GRADY "../../../../../../perfect/suite/wami/inout/medium_dy.mat"
+#define GRADX "../../../../perfect/suite/wami/inout/medium_dx.mat"
+#define GRADY "../../../../perfect/suite/wami/inout/medium_dy.mat"
 
 #elif INPUT_SIZE == INPUT_SIZE_LARGE
 #define M 2048  /* columns */
 #define N 2048  /* rows */
-#define GRADX "../../../../../../perfect/suite/wami/inout/large_dx.mat"
-#define GRADY "../../../../../../perfect/suite/wami/inout/large_dy.mat"
+#define GRADX "../../../../perfect/suite/wami/inout/large_dx.mat"
+#define GRADY "../../../../perfect/suite/wami/inout/large_dy.mat"
 
 #else
 #error "Unhandled value for INPUT_SIZE"

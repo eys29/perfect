@@ -104,19 +104,19 @@
 #if INPUT_SIZE == INPUT_SIZE_SMALL
 #define M 640  /* columns */
 #define N 480  /* rows */
-#define FILENAME "../../../../../../perfect/suite/pa1/input/input_small.mat"
+#define FILENAME "../../../../perfect/suite/pa1/input/input_small.mat"
 #define SIZE "small"
 
 #elif INPUT_SIZE == INPUT_SIZE_MEDIUM
 #define M 1920  /* columns */
 #define N 1080  /* rows */
-#define FILENAME "../../../../../../perfect/suite/pa1/input/input_medium.mat"
+#define FILENAME "../../../../perfect/suite/pa1/input/input_medium.mat"
 #define SIZE "medium"
 
 #elif INPUT_SIZE == INPUT_SIZE_LARGE
 #define M 3840  /* columns */
 #define N 2160  /* rows */
-#define FILENAME "../../../../../../perfect/suite/pa1/input/input_large.mat"
+#define FILENAME "../../../../perfect/suite/pa1/input/input_large.mat"
 #define SIZE "large"
 
 #else
