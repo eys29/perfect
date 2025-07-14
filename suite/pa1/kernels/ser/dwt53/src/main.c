@@ -167,7 +167,7 @@ int main (int argc, char * argv[])
   /* Write the results out to disk */
   for (i = 0; i < BATCH_SIZE; i++) {
     char buffer [40];
-    if(argc == 3) {
+    if(argc >= 3) {
       int instr = atoi(argv[1]);
       int bit = atoi(argv[2]);
       sprintf (buffer, "dwt53_output." SIZE ".%d.mat.%d.%d", i, instr, bit);

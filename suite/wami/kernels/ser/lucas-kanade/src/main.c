@@ -175,7 +175,7 @@ int main (int argc, char * argv[])
   tic ();
   hessian (I_steepest, M, N, 6, H);
   PRINT_STAT_DOUBLE ("time_hessian", toc ());
-  if(argc == 3) {
+  if(argc >= 3) {
     int instr = atoi(argv[1]);
     int bit = atoi(argv[2]);
     char buffer [40];
